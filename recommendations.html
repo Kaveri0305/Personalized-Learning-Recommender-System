@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Video Recommendations{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Recommendations for {{ subject }} ({{ topic }})</h1>
+    
+    <!-- Filter Form -->
+    <div class="filters">
+        <form method="GET" action="{{ url_for('recommendations') }}">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="subject" value="{{ subject }}">
+            <input type="hidden" name="score" value="{{ score }}">
+            <input type="hidden" name="topic" value="{{ topic }}">
+            
+            <div class="filter-group">
+                <label for="video_length">Video Length:</label>
+                <select name="video_length" id="video_length">
+                    <option value="any" {% if current_filters.video_length == 'any' %}selected{% endif %}>Any Length</option>
+                    <option value="short" {% if current_filters.video_length == 'short' %}selected{% endif %}>Short (<10 min)</option>
+                    <option value="medium" {% if current_filters.video_length == 'medium' %}selected{% endif %}>Medium (10-30 min)</option>
+                    <option value="long" {% if current_filters.video_length == 'long' %}selected{% endif %}>Long (>30 min)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="difficulty">Difficulty:</label>
+                <select name="difficulty" id="difficulty">
+                    <option value="any" {% if current_filters.difficulty == 'any' %}selected{% endif %}>Any Level</option>
+                    <option value="basic" {% if current_filters.difficulty == 'basic' %}selected{% endif %}>Basic</option>
+                    <option value="intermediate" {% if current_filters.difficulty == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                    <option value="advanced" {% if current_filters.difficulty == 'advanced' %}selected{% endif %}>Advanced</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="filter-btn">Apply Filters</button>
+        </form>
+    </div>
+
+    {% if message %}
+    <div class="message">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <!-- Video Grid -->
+    <div class="video-grid">
+        {% for video in videos %}
+        <div class="video-card">
+            <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+            <div class="video-info">
+                <h3>{{ video.title }}</h3>
+                <p class="duration">Duration: {{ video.duration_text }}</p>
+                <p class="views">Views: {{ "{:,}".format(video.views) }}</p>
+                <p class="difficulty">Difficulty: {{ video.difficulty|title }}</p>
+                <a href="{{ video.url }}" target="_blank" class="watch-btn" 
+                   onclick="trackVideo('{{ video.id }}', '{{ video.title|replace("'", "\\'") }}', {{ video.duration }}, '{{ video.difficulty }}')">
+                    Watch on YouTube
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not videos %}
+    <div class="no-results">
+        <p>No videos found matching your filters. Try adjusting your filter settings.</p>
+    </div>
+    {% endif %}
+
+    <div class="navigation">
+        <a href="{{ url_for('dashboard', username=username) }}" class="dashboard-btn">View Your Dashboard</a>
+        <a href="{{ url_for('index') }}" class="back-btn">Go Back</a>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function trackVideo(videoId, videoTitle, videoLength, difficulty) {
+        fetch('{{ url_for("track_video") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'video_id': videoId,
+                'username': '{{ username }}',
+                'video_title': videoTitle,
+                'video_length': videoLength,
+                'difficulty_level': difficulty,
+                'completion_status': 'true',
+                'rating': '5'
+            })
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}
+

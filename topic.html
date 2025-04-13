@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choose a Topic</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="form-container">
+    <h1>Hey {{ username }}!</h1>
+    <p>You selected <strong>{{ subject }}</strong> with a score of <strong>{{ score }}</strong>.</p>
+    <p>What topic would you like to work on?</p>
+    
+    <form method="POST">
+      <label for="topic">Topic:</label>
+      <input type="text" id="topic" name="topic" placeholder="e.g., Algebra, WWII, Shakespeare" required>
+      <button type="submit">Get Recommendations</button>
+    </form>
+  </div>
+</body>
+</html>

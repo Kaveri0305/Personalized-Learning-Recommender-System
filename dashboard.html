@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Learning Dashboard for {{ username }}</h1>
+        
+        <!-- Summary Stats -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h3>Total Videos Watched</h3>
+                <p>{{ stats.total_videos }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Completed Videos</h3>
+                <p>{{ stats.completed_videos }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Completion Rate</h3>
+                <p>{{ "%.1f"|format(stats.completion_rate) }}%</p>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart">
+                <h3>Learning Progress</h3>
+                <canvas id="progressChart"></canvas>
+            </div>
+            <div class="chart">
+                <h3>Videos by Difficulty</h3>
+                <canvas id="difficultyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Watch History -->
+        <div class="history-section">
+            <h2>Watch History</h2>
+            <div class="history-list">
+                {% for video in user_history %}
+                <div class="history-item">
+                    <h3>{{ video.video_title }}</h3>
+                    <p>Watched on: {{ video.watch_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p>Difficulty: {{ video.difficulty_level }}</p>
+                    <p>Status: {% if video.completion_status %}Completed{% else %}In Progress{% endif %}</p>
+                    {% if video.rating > 0 %}
+                    <p>Rating: {{ "⭐" * video.rating }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="{{ url_for('index') }}" class="back-btn">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Progress Chart
+        const progressCtx = document.getElementById('progressChart').getContext('2d');
+        new Chart(progressCtx, {
+            type: 'line',
+            data: {
+                labels: {{ dates|tojson }},
+                datasets: [{
+                    label: 'Videos Watched',
+                    data: {{ progress_data|tojson }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Difficulty Distribution Chart
+        const difficultyCtx = document.getElementById('difficultyChart').getContext('2d');
+        new Chart(difficultyCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ stats.difficulty_stats.keys()|list|tojson }},
+                datasets: [{
+                    data: {{ stats.difficulty_stats.values()|list|tojson }},
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+</body>
+</html> 

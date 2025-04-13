@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-box">
+        <h1>Oops! Something went wrong</h1>
+        <p>{{ error_message }}</p>
+        
+        {% if alternative_resources %}
+        <div class="alternative-resources">
+            <h2>Alternative Learning Resources</h2>
+            <ul>
+                {% for resource in alternative_resources %}
+                <li>
+                    <a href="{{ resource.url }}" target="_blank" class="resource-link">
+                        {{ resource.title }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="navigation">
+            <a href="{{ url_for('index') }}" class="back-btn">Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

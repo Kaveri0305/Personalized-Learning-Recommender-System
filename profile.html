@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-box">
+        <h1>Your Profile</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="profile-section">
+            <h2>Account Information</h2>
+            <form method="POST" action="{{ url_for('profile') }}">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" value="{{ user.username }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="{{ user.email }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="interests">Interests (comma-separated):</label>
+                    <input type="text" id="interests" name="interests" value="{{ user.interests or '' }}" 
+                           placeholder="e.g., Math, Physics, Programming">
+                </div>
+                <div class="form-group">
+                    <label for="difficulty_preference">Preferred Difficulty:</label>
+                    <select id="difficulty_preference" name="difficulty_preference">
+                        <option value="any" {% if user.difficulty_preference == 'any' %}selected{% endif %}>Any Level</option>
+                        <option value="basic" {% if user.difficulty_preference == 'basic' %}selected{% endif %}>Basic</option>
+                        <option value="intermediate" {% if user.difficulty_preference == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="advanced" {% if user.difficulty_preference == 'advanced' %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">New Password (leave blank to keep current):</label>
+                    <input type="password" id="new_password" name="new_password">
+                </div>
+                <button type="submit" class="profile-btn">Update Profile</button>
+            </form>
+        </div>
+
+        <div class="stats-section">
+            <h2>Learning Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Videos Watched</h3>
+                    <p>{{ user_progress.total_videos }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed Videos</h3>
+                    <p>{{ user_progress.completed_videos }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completion Rate</h3>
+                    <p>{{ "%.1f"|format(user_progress.completion_rate) }}%</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Favorite Subject</h3>
+                    <p>{{ user_progress.favorite_subject or 'Not enough data' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="{{ url_for('dashboard', username=user.username) }}" class="nav-btn">View Full Dashboard</a>
+            <a href="{{ url_for('study_form') }}" class="nav-btn">Start Learning</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
